@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Casus Belli — Эпоха Эдо | RP-проект</title>
+<style>
+  :root {
+    --bg: #0f0d0a;
+    --bg2: #1a1612;
+    --card: #221c16;
+    --border: #3d3226;
+    --gold: #c9a961;
+    --gold2: #e8c987;
+    --red: #a83a3a;
+    --green: #5a8a4a;
+    --text: #e8e0d0;
+    --muted: #8a7d6a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(201,169,97,0.06) 0%, transparent 40%),
+      radial-gradient(circle at 80% 90%, rgba(168,58,58,0.05) 0%, transparent 40%);
+  }
+
+  /* ===== HEADER ===== */
+  header {
+    text-align: center;
+    padding: 60px 20px 40px;
+    border-bottom: 2px solid var(--border);
+    position: relative;
+  }
+
+  header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+
+  .crest {
+    font-size: 48px;
+    margin-bottom: 10px;
+    filter: drop-shadow(0 0 12px rgba(201,169,97,0.4));
+  }
+
+  h1 {
+    font-size: 42px;
+    color: var(--gold2);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    font-weight: normal;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-style: italic;
+    margin-top: 8px;
+    font-size: 16px;
+  }
+
+  .divider {
+    width: 200px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 20px auto 0;
+  }
+
+  /* ===== CONTAINER ===== */
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+  }
+
+  /* ===== THRESHOLDS ===== */
+  .thresholds {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 40px;
+  }
+
+  .threshold {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--gold);
+    padding: 14px 18px;
+    border-radius: 4px;
+    transition: transform 0.2s;
+  }
+
+  .threshold:hover {
+    transform: translateY(-3px);
+    border-left-color: var(--gold2);
+  }
+
+  .threshold .lvl {
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+
+  .threshold .pts {
+    font-size: 22px;
+    color: var(--gold2);
+    font-weight: bold;
+    margin: 4px 0;
+  }
+
+  .threshold .desc {
+    font-size: 13px;
+    color: var(--text);
+  }
+
+  /* ===== CONTROLS ===== */
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 25px;
+    align-items: center;
+  }
+
+  .search-box {
+    flex: 1;
+    min-width: 200px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 16px;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+  }
+
+  .search-box:focus { border-color: var(--gold); }
+
+  .filter-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 10px 18px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.2s;
+  }
+
+  .filter-btn:hover { color: var(--gold2); border-color: var(--gold); }
+
+  .filter-btn.active {
+    background: var(--gold);
+    color: var(--bg);
+    border-color: var(--gold);
+    font-weight: bold;
+  }
+
+  /* ===== TABLE ===== */
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg2);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  thead {
+    background: linear-gradient(180deg, #2a2218, #1e1812);
+    position: sticky;
+    top: 0;
+  }
+
+  th {
+    padding: 14px 12px;
+    text-align: left;
+    color: var(--gold2);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    border-bottom: 2px solid var(--border);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 12px;
+    border-bottom: 1px solid #2a2218;
+    vertical-align: top;
+  }
+
+  tbody tr {
+    transition: background 0.15s;
+  }
+
+  tbody tr:hover {
+    background: rgba(201,169,97,0.05);
+  }
+
+  .cat-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: bold;
+    white-space: nowrap;
+  }
+
+  .cat-polit { background: #3a2a4a; color: #c9a0e8; }
+  .cat-econ  { background: #4a3a1a; color: #e8c987; }
+  .cat-relig { background: #2a3a4a; color: #90c0e8; }
+  .cat-war   { background: #4a1a1a; color: #e89090; }
+  .cat-pers  { background: #1a3a2a; color: #90e8b0; }
+  .cat-hid   { background: #2a2a2a; color: #b0b0b0; }
+
+  .pts-cell {
+    font-weight: bold;
+    font-size: 16px;
+    color: var(--gold2);
+    text-align: center;
+  }
+
+  .pts-1 { color: #8a9a6a; }
+  .pts-2 { color: #c9a961; }
+  .pts-3 { color: #d4a04a; }
+  .pts-4 { color: #c96a3a; }
+  .pts-5 { color: #a83a3a; }
+
+  .reason-name {
+    color: var(--gold2);
+    font-weight: bold;
+    font-size: 15px;
+  }
+
+  .muted { color: var(--muted); font-size: 13px; }
+
+  .neg { color: #e89090; }
+  .pos { color: #90e8b0; }
+
+  /* ===== LEGEND ===== */
+  .legend {
+    margin-top: 40px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  .legend-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 20px;
+  }
+
+  .legend-card h3 {
+    color: var(--gold2);
+    font-size: 16px;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: normal;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
+  }
+
+  .legend-card ul {
+    list-style: none;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .legend-card li {
+    padding: 6px 0;
+    padding-left: 18px;
+    position: relative;
+  }
+
+  .legend-card li::before {
+    content: '◆';
+    position: absolute;
+    left: 0;
+    color: var(--gold);
+    font-size: 10px;
+    top: 9px;
+  }
+
+  /* ===== FOOTER ===== */
+  footer {
+    text-align: center;
+    padding: 30px;
+    color: var(--muted);
+    font-size: 12px;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+    letter-spacing: 1px;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 700px) {
+    h1 { font-size: 26px; letter-spacing: 2px; }
+    .crest { font-size: 36px; }
+    th, td { padding: 8px; font-size: 12px; }
+    .hide-mobile { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="crest">⚔️</div>
+  <h1>Casus Belli</h1>
+  <p class="subtitle">Поводы к рейду между кланами · Эпоха Эдо · RP-проект</p>
+  <div class="divider"></div>
+</header>
+
+<div class="container">
+
+  <!-- ПОРОГИ -->
+  <div class="thresholds">
+    <div class="threshold">
+      <div class="lvl">Уровень 0</div>
+      <div class="pts">0–2 балла</div>
+      <div class="desc">Только дипломатия, письма, угрозы</div>
+    </div>
+    <div class="threshold">
+      <div class="lvl">Уровень 1</div>
+      <div class="pts">3–4 балла</div>
+      <div class="desc">Малый рейд · до 5 чел · 15 мин · 1 цель</div>
+    </div>
+    <div class="threshold">
+      <div class="lvl">Уровень 2</div>
+      <div class="pts">5–6 баллов</div>
+      <div class="desc">Средний рейд · до 10 чел · 30 мин · 2 цели</div>
+    </div>
+    <div class="threshold">
+      <div class="lvl">Уровень 3</div>
+      <div class="pts">7–8 баллов</div>
+      <div class="desc">Крупный рейд · до 15 чел · 45 мин · 3 цели</div>
+    </div>
+    <div class="threshold">
+      <div class="lvl">Уровень 4</div>
+      <div class="pts">9+ баллов</div>
+      <div class="desc">Полномасштабная война · уведомление сёгуната</div>
+    </div>
+  </div>
+
+  <!-- УПРАВЛЕНИЕ -->
+  <div class="controls">
+    <input type="text" class="search-box" id="search" placeholder="🔍 Поиск повода...">
+    <button class="filter-btn active" data-cat="all">Все</button>
+    <button class="filter-btn" data-cat="polit">Политика</button>
+    <button class="filter-btn" data-cat="econ">Экономика</button>
+    <button class="filter-btn" data-cat="relig">Религия</button>
+    <button class="filter-btn" data-cat="war">Война</button>
+    <button class="filter-btn" data-cat="pers">Личное</button>
+    <button class="filter-btn" data-cat="hid">Скрытое</button>
+  </div>
+
+  <!-- ТАБЛИЦА -->
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>№</th>
+          <th>Повод</th>
+          <th class="hide-mobile">Категория</th>
+          <th>Баллы</th>
+          <th class="hide-mobile">Доказательства</th>
+          <th class="hide-mobile">Последствия (агрессор)</th>
+          <th class="hide-mobile">Последствия (жертва)</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <!-- ЛЕГЕНДА -->
+  <div class="legend">
+    <div class="legend-card">
+      <h3>Как работает система</h3>
+      <ul>
+        <li>Клан набирает баллы Casus Belli против другого клана</li>
+        <li>Порог определяет масштаб разрешённого рейда</li>
+        <li>Баллы сгорают через N игровых дней</li>
+        <li>Ложный повод = штраф и потеря репутации</li>
+      </ul>
+    </div>
+    <div class="legend-card">
+      <h3>Требования к рейду</h3>
+      <ul>
+        <li>IC-причина, записанная в донесении или указе</li>
+        <li>RP-подготовка: шпионаж, письма, собрание клана</li>
+        <li>Уведомление администрации до начала</li>
+        <li>Рейд без причины = DM / Fail RP</li>
+      </ul>
+    </div>
+    <div class="legend-card">
+      <h3>Последствия после рейда</h3>
+      <ul>
+        <li>Изменение политической карты и союзов</li>
+        <li>Возможное вмешательство сёгуната</li>
+        <li>Экономическая блокада или санкции</li>
+        <li>Запись в «хронику» сервера</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  ⚔️ CASUS BELLI · ЭПОХА ЭДО · RP-ПРОЕКТ ⚔️<br>
+  Система поводов к рейду между кланами
+</footer>
+
+<script>
+const data = [
+  // ПОЛИТИЧЕСКИЕ
+  { n: 1, cat: 'polit', name: 'Нарушение границы хана', pts: 1,
+    proof: 'Скриншот/лог пересечения, свидетель',
+    aggr: 'Штраф 10% дохода', vict: 'Может требовать компенсацию' },
+  { n: 2, cat: 'polit', name: 'Оскорбление чести даймё', pts: 2,
+    proof: 'RP-сцена, свидетель, письмо',
+    aggr: 'Репутация −5', vict: 'Репутация −10, обязан извиниться' },
+  { n: 3, cat: 'polit', name: 'Отказ от дани / подарков', pts: 2,
+    proof: 'Договор, письмо, свидетель',
+    aggr: 'Нет', vict: 'Штраф 15% дохода' },
+  { n: 4, cat: 'polit', name: 'Спор о наследстве или браке', pts: 3,
+    proof: 'Договор, свидетели, письма',
+    aggr: 'Репутация −10', vict: 'Репутация −10, спор решает сёгунат' },
+  { n: 5, cat: 'polit', name: 'Месть за убийство самурая', pts: 3,
+    proof: 'Тело, свидетель, имя убийцы',
+    aggr: 'Нет (законная месть)', vict: 'Обязан выдать убийцу или компенсацию' },
+  { n: 6, cat: 'polit', name: 'Укрывательство преступника', pts: 2,
+    proof: 'Донесение, свидетель',
+    aggr: 'Нет', vict: 'Обязан выдать преступника' },
+  { n: 7, cat: 'polit', name: 'Подделка документов', pts: 3,
+    proof: 'Документ, эксперт-свидетель',
+    aggr: 'Репутация −5', vict: 'Репутация −15, штраф 20%' },
+  { n: 8, cat: 'polit', name: 'Сговор с врагом сёгуната', pts: 4,
+    proof: 'Письма, свидетель, шпион',
+    aggr: 'Нет', vict: 'Репутация −20, возможен вызов в Эдо' },
+
+  // ЭКОНОМИЧЕСКИЕ
+  { n: 9, cat: 'econ', name: 'Захват рисовых полей', pts: 2,
+    proof: 'Скриншот, свидетель',
+    aggr: 'Нет', vict: 'Потеря 10% урожая' },
+  { n: 10, cat: 'econ', name: 'Блокировка торгового пути', pts: 3,
+    proof: 'Лог пошлин, свидетель',
+    aggr: 'Нет', vict: 'Штраф 15% дохода' },
+  { n: 11, cat: 'econ', name: 'Захват ремесленников', pts: 3,
+    proof: 'Свидетель, список имён',
+    aggr: 'Репутация −5', vict: 'Потеря 1 ремесленника' },
+  { n: 12, cat: 'econ', name: 'Голод в своём хане', pts: 2,
+    proof: 'RP-причина, указ даймё',
+    aggr: 'Репутация −10 (если не доказано)', vict: 'Может требовать компенсацию' },
+  { n: 13, cat: 'econ', name: 'Долг ростовщикам', pts: 1,
+    proof: 'Долговая расписка',
+    aggr: 'Нет', vict: 'Обязан вернуть долг' },
+  { n: 14, cat: 'econ', name: 'Контрабанда через хан', pts: 3,
+    proof: 'Товар, свидетель',
+    aggr: 'Нет', vict: 'Штраф 20%, конфискация' },
+
+  // РЕЛИГИОЗНЫЕ
+  { n: 15, cat: 'relig', name: 'Спор о храме или святыне', pts: 2,
+    proof: 'Свидетель, документ о покровительстве',
+    aggr: 'Репутация −5', vict: 'Репутация −5, спор решает сёгунат' },
+  { n: 16, cat: 'relig', name: 'Укрывательство еретиков', pts: 4,
+    proof: 'Свидетель, донос, задержанный',
+    aggr: 'Нет', vict: 'Репутация −20, возможна казнь' },
+  { n: 17, cat: 'relig', name: 'Идеологическая вражда', pts: 3,
+    proof: 'Письма, трактаты, свидетель',
+    aggr: 'Репутация −10', vict: 'Репутация −10' },
+  { n: 18, cat: 'relig', name: 'Осквернение святыни', pts: 5,
+    proof: 'Свидетель, повреждённый объект',
+    aggr: 'Нет', vict: 'Репутация −25, обязана компенсация' },
+
+  // ВОЕННЫЕ
+  { n: 19, cat: 'war', name: 'Превентивный удар', pts: 4,
+    proof: 'Донесение шпиона, план нападения',
+    aggr: 'Репутация −10', vict: 'Нет' },
+  { n: 20, cat: 'war', name: 'Захват заложников', pts: 4,
+    proof: 'Свидетель, список заложников',
+    aggr: 'Нет', vict: 'Обязана освободить заложников' },
+  { n: 21, cat: 'war', name: 'Уничтожение складов и арсеналов', pts: 3,
+    proof: 'Скриншот, свидетель',
+    aggr: 'Репутация −5', vict: 'Потеря ресурсов' },
+  { n: 22, cat: 'war', name: 'Провокация с целью втянуть сёгунат', pts: 5,
+    proof: 'Письма, свидетель, донесение',
+    aggr: 'Репутация −20', vict: 'Может требовать защиты сёгуната' },
+  { n: 23, cat: 'war', name: 'Поддержка мятежника', pts: 3,
+    proof: 'Свидетель, оружие, письма',
+    aggr: 'Репутация −10', vict: 'Репутация −10' },
+
+  // ЛИЧНЫЕ
+  { n: 24, cat: 'pers', name: 'Кровная месть (катакиути)', pts: 3,
+    proof: 'Тело, свидетель, имя убийцы',
+    aggr: 'Нет (законная месть)', vict: 'Обязана выдать убийцу' },
+  { n: 25, cat: 'pers', name: 'Похищение невесты или наложницы', pts: 4,
+    proof: 'Свидетель, письма',
+    aggr: 'Репутация −10', vict: 'Репутация −10' },
+  { n: 26, cat: 'pers', name: 'Предательство вассала', pts: 3,
+    proof: 'Свидетель, документы',
+    aggr: 'Нет', vict: 'Обязана наказать предателя' },
+  { n: 27, cat: 'pers', name: 'Спор между наследниками', pts: 3,
+    proof: 'Завещание, свидетели',
+    aggr: 'Репутация −5', vict: 'Репутация −5' },
+  { n: 28, cat: 'pers', name: 'Личная вражда даймё', pts: 2,
+    proof: 'RP-сцена, свидетель',
+    aggr: 'Репутация −5', vict: 'Репутация −5' },
+
+  // СКРЫТЫЕ
+  { n: 29, cat: 'hid', name: 'Тайное поручение сёгуната', pts: 5,
+    proof: 'Указ с печатью бакуфу',
+    aggr: 'Нет (санкция сёгуната)', vict: 'Репутация −20' },
+  { n: 30, cat: 'hid', name: 'Двойная игра', pts: 4,
+    proof: 'Письма, свидетель, шпион',
+    aggr: 'Репутация −15 (если раскрыт)', vict: 'Нет' },
+  { n: 31, cat: 'hid', name: 'Провокация ронинов', pts: 3,
+    proof: 'Свидетель, наёмник',
+    aggr: 'Репутация −10 (если раскрыт)', vict: 'Может требовать компенсацию' },
+  { n: 32, cat: 'hid', name: 'Контрабанда (оружие, опиум)', pts: 3,
+    proof: 'Товар, свидетель',
+    aggr: 'Нет', vict: 'Штраф 20%, конфискация' },
+  { n: 33, cat: 'hid', name: 'Месть за поражение в прошлом', pts: 2,
+    proof: 'Хроника, свидетель',
+    aggr: 'Репутация −5', vict: 'Нет' }
+];
+
+const catLabels = {
+  polit: 'Политика', econ: 'Экономика', relig: 'Религия',
+  war: 'Война', pers: 'Личное', hid: 'Скрытое'
+};
+
+const tbody = document.getElementById('tbody');
+const searchInput = document.getElementById('search');
+const filterBtns = document.querySelectorAll('.filter-btn');
+
+let currentCat = 'all';
+let currentSearch = '';
+
+function render() {
+  const filtered = data.filter(d => {
+    const matchCat = currentCat === 'all' || d.cat === currentCat;
+    const matchSearch = d.name.toLowerCase().includes(currentSearch) ||
+                        d.proof.toLowerCase().includes(currentSearch) ||
+                        catLabels[d.cat].toLowerCase().includes(currentSearch);
+    return matchCat && matchSearch;
+  });
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted);font-style:italic;">Ничего не найдено</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(d => `
+    <tr>
+      <td class="muted">${d.n}</td>
+      <td><span class="reason-name">${d.name}</span></td>
+      <td class="hide-mobile"><span class="cat-badge cat-${d.cat}">${catLabels[d.cat]}</span></td>
+      <td class="pts-cell pts-${Math.min(d.pts,5)}">${d.pts}</td>
+      <td class="hide-mobile muted">${d.proof}</td>
+      <td class="hide-mobile ${d.aggr.includes('−') ? 'neg' : ''}">${d.aggr}</td>
+      <td class="hide-mobile ${d.vict.includes('−') ? 'neg' : ''}">${d.vict}</td>
+    </tr>
+  `).join('');
+}
+
+filterBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    filterBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentCat = btn.dataset.cat;
+    render();
+  });
+});
+
+searchInput.addEventListener('input', e => {
+  currentSearch = e.target.value.toLowerCase().trim();
+  render();
+});
+
+render();
+</script>
+</body>
+</html>
