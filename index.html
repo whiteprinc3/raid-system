@@ -13,7 +13,6 @@
     --gold: #c9a961;
     --gold2: #e8c987;
     --red: #a83a3a;
-    --green: #5a8a4a;
     --text: #e8e0d0;
     --muted: #8a7d6a;
   }
@@ -254,7 +253,6 @@
   .muted { color: var(--muted); font-size: 13px; }
 
   .neg { color: #e89090; }
-  .pos { color: #90e8b0; }
 
   /* ===== LEGEND ===== */
   .legend {
@@ -303,6 +301,36 @@
     top: 9px;
   }
 
+  /* ===== WAR RULES ===== */
+  .war-rules {
+    margin-top: 40px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--red);
+    border-radius: 6px;
+    padding: 24px 28px;
+  }
+
+  .war-rules h2 {
+    color: var(--gold2);
+    font-size: 18px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: normal;
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .war-rules p {
+    font-size: 14px;
+    color: var(--text);
+    margin-bottom: 12px;
+    line-height: 1.7;
+  }
+
+  .war-rules p:last-child { margin-bottom: 0; }
+
   /* ===== FOOTER ===== */
   footer {
     text-align: center;
@@ -320,6 +348,9 @@
     .crest { font-size: 36px; }
     th, td { padding: 8px; font-size: 12px; }
     .hide-mobile { display: none; }
+    .war-rules { padding: 18px 16px; }
+    .war-rules h2 { font-size: 15px; }
+    .war-rules p { font-size: 13px; }
   }
 </style>
 </head>
@@ -424,6 +455,13 @@
     </div>
   </div>
 
+  <!-- ПРАВИЛА ВОЙНЫ -->
+  <div class="war-rules">
+    <h2>Порядок объявления войны</h2>
+    <p>Война начинается путём оповещения и разговора с сёгуном. Перед этим может пройти прение сторон (обсуждение, где есть попытка перейти к перемирию). Если не выходит — объявляется война путём оповещения всех кланов. Сёгун имеет право принять одну из сторон или принять нейтральную сторону при несогласии с двумя.</p>
+    <p>Если клан проиграл или выиграл войну, объявляется промежуток запрета на нападение и объявление войны на протяжении 5–7 дней. Вызов на дуэли блокируется на 3–4 дня для любых других кланов, что пытаются развязать войну или конфликт.</p>
+  </div>
+
 </div>
 
 <footer>
@@ -432,7 +470,12 @@
 </footer>
 
 <script>
-const data = [
+const CAT_LABELS = {
+  polit: 'Политика', econ: 'Экономика', relig: 'Религия',
+  war: 'Война', pers: 'Личное', hid: 'Скрытое'
+};
+
+const DATA = [
   // ПОЛИТИЧЕСКИЕ
   { n: 1, cat: 'polit', name: 'Нарушение границы хана', pts: 1,
     proof: 'Скриншот/лог пересечения, свидетель',
@@ -545,10 +588,11 @@ const data = [
     aggr: 'Репутация −5', vict: 'Нет' }
 ];
 
-const catLabels = {
-  polit: 'Политика', econ: 'Экономика', relig: 'Религия',
-  war: 'Война', pers: 'Личное', hid: 'Скрытое'
-};
+// Предрасчёт поисковых строк для скорости
+const INDEXED = DATA.map(d => ({
+  ...d,
+  _search: (d.name + ' ' + d.proof + ' ' + CAT_LABELS[d.cat]).toLowerCase()
+}));
 
 const tbody = document.getElementById('tbody');
 const searchInput = document.getElementById('search');
@@ -556,32 +600,41 @@ const filterBtns = document.querySelectorAll('.filter-btn');
 
 let currentCat = 'all';
 let currentSearch = '';
+let rafId = null;
+
+function buildRow(d) {
+  const negAggr = d.aggr.includes('−') ? ' neg' : '';
+  const negVict = d.vict.includes('−') ? ' neg' : '';
+  const ptsClass = `pts-${Math.min(d.pts, 5)}`;
+
+  return `<tr>
+    <td class="muted">${d.n}</td>
+    <td><span class="reason-name">${d.name}</span></td>
+    <td class="hide-mobile"><span class="cat-badge cat-${d.cat}">${CAT_LABELS[d.cat]}</span></td>
+    <td class="pts-cell ${ptsClass}">${d.pts}</td>
+    <td class="hide-mobile muted">${d.proof}</td>
+    <td class="hide-mobile${negAggr}">${d.aggr}</td>
+    <td class="hide-mobile${negVict}">${d.vict}</td>
+  </tr>`;
+}
 
 function render() {
-  const filtered = data.filter(d => {
-    const matchCat = currentCat === 'all' || d.cat === currentCat;
-    const matchSearch = d.name.toLowerCase().includes(currentSearch) ||
-                        d.proof.toLowerCase().includes(currentSearch) ||
-                        catLabels[d.cat].toLowerCase().includes(currentSearch);
-    return matchCat && matchSearch;
-  });
+  const filtered = INDEXED.filter(d =>
+    (currentCat === 'all' || d.cat === currentCat) &&
+    (!currentSearch || d._search.includes(currentSearch))
+  );
 
-  if (filtered.length === 0) {
+  if (!filtered.length) {
     tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted);font-style:italic;">Ничего не найдено</td></tr>`;
     return;
   }
 
-  tbody.innerHTML = filtered.map(d => `
-    <tr>
-      <td class="muted">${d.n}</td>
-      <td><span class="reason-name">${d.name}</span></td>
-      <td class="hide-mobile"><span class="cat-badge cat-${d.cat}">${catLabels[d.cat]}</span></td>
-      <td class="pts-cell pts-${Math.min(d.pts,5)}">${d.pts}</td>
-      <td class="hide-mobile muted">${d.proof}</td>
-      <td class="hide-mobile ${d.aggr.includes('−') ? 'neg' : ''}">${d.aggr}</td>
-      <td class="hide-mobile ${d.vict.includes('−') ? 'neg' : ''}">${d.vict}</td>
-    </tr>
-  `).join('');
+  tbody.innerHTML = filtered.map(buildRow).join('');
+}
+
+function scheduleRender() {
+  if (rafId) cancelAnimationFrame(rafId);
+  rafId = requestAnimationFrame(render);
 }
 
 filterBtns.forEach(btn => {
@@ -589,13 +642,13 @@ filterBtns.forEach(btn => {
     filterBtns.forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     currentCat = btn.dataset.cat;
-    render();
+    scheduleRender();
   });
 });
 
 searchInput.addEventListener('input', e => {
   currentSearch = e.target.value.toLowerCase().trim();
-  render();
+  scheduleRender();
 });
 
 render();
